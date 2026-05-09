@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Identity\Http\Controllers\MeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,4 +12,11 @@ Route::get('/health', function () {
         'status' => 'ok',
         'timestamp' => now()->toIso8601String(),
     ];
+});
+
+/*
+ * Rutes autenticades (Sanctum SPA cookies).
+ */
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/me', MeController::class);
 });
