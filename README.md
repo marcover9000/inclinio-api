@@ -18,7 +18,7 @@ Backend Laravel 12 d'Inclinio v2 (CRM + futura API per a sites d'estadia).
 ## Comandes
 Sempre des de `inclinio-infra/`:
 ```bash
-./bin/api artisan migrate
-./bin/api pest
+./bin/api php artisan migrate
+./bin/api ./vendor/bin/pest
 ./bin/composer install
 ```
