@@ -2,6 +2,7 @@
 
 use App\Modules\Identity\Http\Controllers\LoginController;
 use App\Modules\Identity\Http\Controllers\LogoutController;
+use App\Modules\Identity\Http\Controllers\PasswordResetController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -10,3 +11,6 @@ use Illuminate\Support\Facades\Route;
  */
 Route::post('/login', LoginController::class);
 Route::post('/logout', LogoutController::class)->middleware('auth:sanctum');
+
+Route::post('/password/email', [PasswordResetController::class, 'sendResetEmail']);
+Route::post('/password/reset', [PasswordResetController::class, 'reset']);

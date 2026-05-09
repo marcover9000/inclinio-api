@@ -3,6 +3,7 @@
 namespace App\Modules\Identity\Domain\Models;
 
 use App\Modules\Identity\Domain\Enums\UserRole;
+use App\Modules\Identity\Domain\Notifications\ResetPasswordNotification;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -53,6 +54,11 @@ class User extends Authenticatable
     public function isStaff(): bool
     {
         return $this->hasRole(UserRole::Staff->value);
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 
     protected static function newFactory(): UserFactory
