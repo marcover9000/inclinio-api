@@ -6,11 +6,10 @@
  * Útil com a smoke test després de cada deploy.
  */
 
-it('respons amb 200 i status ok al endpoint /api/health', function () {
+it('respon amb 200 i status ok al endpoint /api/health', function () {
     $response = $this->getJson('/api/health');
 
     $response->assertOk();
-    $response->assertJson([
-        'status' => 'ok',
-    ]);
+    $response->assertJson(['status' => 'ok']);
+    $response->assertJsonStructure(['status', 'timestamp']);
 });
