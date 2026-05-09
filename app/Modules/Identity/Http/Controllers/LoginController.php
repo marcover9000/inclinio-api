@@ -8,11 +8,12 @@ use App\Modules\Identity\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /*
  * Endpoint POST /login. Autentica via Sanctum SPA cookies.
- * Aplica throttling: 5 intents/min per IP.
+ * Aplica throttling: 5 intents/min per (email, IP).
  */
 class LoginController extends Controller
 {
@@ -45,8 +46,14 @@ class LoginController extends Controller
         ])->status(429);
     }
 
+    /**
+     * Clau de throttling: combina email i IP per evitar:
+     * - DoS contra IPs compartides (NAT, oficina) si fos només email
+     * - Bypass si fos només IP (atacant amb molts emails)
+     */
     private function throttleKey(Request $request): string
     {
-        return 'login:' . $request->ip();
+        $email = Str::lower((string) $request->input('email'));
+        return "login:{$email}|{$request->ip()}";
     }
 }
