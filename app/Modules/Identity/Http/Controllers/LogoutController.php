@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Modules\Identity\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+
+/*
+ * Endpoint POST /logout. Tanca la sessió i invalida la cookie.
+ */
+class LogoutController extends Controller
+{
+    public function __invoke(Request $request): Response
+    {
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        Auth::forgetGuards();
+
+        return response()->noContent();
+    }
+}
