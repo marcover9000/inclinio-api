@@ -39,3 +39,22 @@ pest()->extend(Tests\TestCase::class)
 | global functions to help you to reduce the number of lines of code in your test files.
 |
 */
+
+/*
+|--------------------------------------------------------------------------
+| Hooks globals
+|--------------------------------------------------------------------------
+|
+| Crea els rols admin/staff abans de cada test (idempotent gràcies a firstOrCreate).
+| Necessari perquè User::factory()->admin()/staff() els pugui assignar.
+|
+*/
+
+use App\Modules\Identity\Domain\Enums\UserRole;
+use Spatie\Permission\Models\Role;
+
+uses()->beforeEach(function () {
+    foreach (UserRole::cases() as $role) {
+        Role::findOrCreate($role->value, 'web');
+    }
+})->in('Feature', 'Unit');
