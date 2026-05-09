@@ -13,7 +13,7 @@ it('tanca la sessió de l\'usuari autenticat', function () {
         ->postJson('/logout')
         ->assertNoContent();
 
-    $this->assertGuest();
+    $this->assertGuest('web');
 });
 
 it('retorna 401 si no hi ha usuari autenticat', function () {
