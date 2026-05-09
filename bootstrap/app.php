@@ -15,7 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         App\Modules\Identity\Infrastructure\Console\CreateUserCommand::class,
     ])
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'role' => \App\Modules\Identity\Http\Middleware\EnsureRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
