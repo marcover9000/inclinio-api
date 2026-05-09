@@ -7,6 +7,7 @@ use App\Modules\Identity\Domain\Enums\UserRole;
 use App\Modules\Identity\Domain\Models\User;
 use Illuminate\Database\Seeder;
 use RuntimeException;
+use Spatie\Permission\Models\Role;
 
 /*
  * Seeder per crear el primer usuari admin del sistema.
@@ -24,6 +25,11 @@ class AdminSeeder extends Seeder
             throw new RuntimeException(
                 "AdminSeeder necessita ADMIN_EMAIL i ADMIN_PASSWORD al .env"
             );
+        }
+
+        // Assegurem que els rols existeixen (idempotent)
+        foreach (UserRole::cases() as $role) {
+            Role::findOrCreate($role->value, 'web');
         }
 
         if (User::where('email', $email)->exists()) {
