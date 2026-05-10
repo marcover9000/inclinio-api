@@ -17,6 +17,7 @@
 /public/hot
 /public/storage
 /storage/*.key
+/inclinio
 /storage/pail
 /vendor
 Homestead.json
