@@ -6,7 +6,7 @@
  * compartint cookies de sessió Sanctum.
  */
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout'],
+    'paths' => ['api/*', 'sanctum/csrf-cookie', 'login', 'logout', 'password/email', 'password/reset'],
     'allowed_methods' => ['*'],
     'allowed_origins' => [
         'http://admin.inclinio.localhost',
