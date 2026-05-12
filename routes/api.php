@@ -26,5 +26,9 @@ Route::post('/public/leads', \App\Modules\Crm\Http\Controllers\PublicLeadControl
  */
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', MeController::class);
+    Route::get('/leads', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'index']);
     Route::post('/leads', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'store']);
+    Route::get('/leads/{lead}', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'show']);
+    Route::patch('/leads/{lead}', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'update']);
+    Route::delete('/leads/{lead}', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'destroy']);
 });
