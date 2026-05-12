@@ -31,4 +31,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/leads/{lead}', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'show']);
     Route::patch('/leads/{lead}', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'update']);
     Route::delete('/leads/{lead}', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'destroy']);
+    Route::patch('/leads/{lead}/status', \App\Modules\Crm\Http\Controllers\LeadStatusController::class);
 });
