@@ -15,6 +15,13 @@ Route::get('/health', function () {
 });
 
 /*
+ * Endpoint públic de captació de leads via formulari web.
+ * Rate-limited: 5 sol·licituds per minut per IP. Honeypot al camp `_hp`.
+ */
+Route::post('/public/leads', \App\Modules\Crm\Http\Controllers\PublicLeadController::class)
+    ->middleware('throttle:5,1');
+
+/*
  * Rutes autenticades (Sanctum SPA cookies).
  */
 Route::middleware('auth:sanctum')->group(function () {
