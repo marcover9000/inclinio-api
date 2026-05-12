@@ -3,10 +3,8 @@
 Backend Laravel 12 d'Inclinio v2 (CRM + futura API per a sites d'estadia).
 
 ## Convencions
-- **Codi en anglès** (classes, mètodes, variables).
-- **Comentaris i documentació en català**.
 - Arquitectura: DDD pragmàtic amb Eloquent enriquit dins `app/Modules/`.
-- Tests: TDD pur amb Pest (cada feature comença per un test fallant).
+- Tests: TDD pur amb Pest.
 
 ## Mòduls (bounded contexts)
 - `Identity` — usuaris, autenticació, rols
