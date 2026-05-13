@@ -26,7 +26,7 @@ class CompanyController extends Controller
 
     public function show(Company $company): CompanyResource
     {
-        return CompanyResource::make($company->load('people'));
+        return CompanyResource::make($company);
     }
 
     public function update(UpdateCompanyRequest $request, Company $company): CompanyResource
