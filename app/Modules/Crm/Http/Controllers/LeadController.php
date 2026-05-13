@@ -19,7 +19,10 @@ class LeadController extends Controller
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Lead::query()
-            ->with(['person.company'])
+            ->with([
+                'person' => fn ($q) => $q->withTrashed()->with(['company' => fn ($q2) => $q2->withTrashed()]),
+                'company' => fn ($q) => $q->withTrashed(),
+            ])
             ->orderByDesc('status_changed_at');
 
         if ($status = $request->query('status')) {
@@ -67,7 +70,11 @@ class LeadController extends Controller
 
     public function show(Lead $lead): LeadResource
     {
-        return LeadResource::make($lead->load(['person.company', 'company', 'notes.author']));
+        return LeadResource::make($lead->load([
+            'person' => fn ($q) => $q->withTrashed()->with(['company' => fn ($q2) => $q2->withTrashed()]),
+            'company' => fn ($q) => $q->withTrashed(),
+            'notes.author',
+        ]));
     }
 
     public function update(UpdateLeadRequest $request, Lead $lead): LeadResource
