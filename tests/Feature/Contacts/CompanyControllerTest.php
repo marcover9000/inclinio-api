@@ -86,3 +86,46 @@ it('returns people and leads on show', function () {
     expect(count($resp->json('data.people')))->toEqual(2);
     expect(count($resp->json('data.leads')))->toEqual(2);
 });
+
+it('creates a company', function () {
+    $resp = $this->actingAs($this->admin)->postJson('/api/companies', [
+        'name' => 'Nova S.L.',
+        'vat' => 'B12345678',
+    ]);
+    $resp->assertCreated()
+        ->assertJsonStructure(['data' => ['id', 'name', 'vat']])
+        ->assertJsonPath('data.name', 'Nova S.L.')
+        ->assertJsonPath('data.vat', 'B12345678');
+    expect(Company::where('name', 'Nova S.L.')->exists())->toBeTrue();
+});
+
+it('rejects duplicate name on store', function () {
+    Company::factory()->create(['name' => 'Acme S.L.']);
+    $resp = $this->actingAs($this->admin)->postJson('/api/companies', [
+        'name' => 'Acme S.L.',
+    ]);
+    $resp->assertStatus(422)
+        ->assertJsonValidationErrors(['name']);
+});
+
+it('allows creating with a name that only exists on a soft-deleted company', function () {
+    $deleted = Company::factory()->create(['name' => 'Ghost Inc']);
+    $deleted->delete();
+    $resp = $this->actingAs($this->admin)->postJson('/api/companies', [
+        'name' => 'Ghost Inc',
+    ]);
+    $resp->assertCreated()
+        ->assertJsonPath('data.name', 'Ghost Inc');
+});
+
+it('requires name on store', function () {
+    $resp = $this->actingAs($this->admin)->postJson('/api/companies', [
+        'vat' => 'B99999999',
+    ]);
+    $resp->assertStatus(422)
+        ->assertJsonValidationErrors(['name']);
+});
+
+it('requires auth on store', function () {
+    $this->postJson('/api/companies', ['name' => 'X'])->assertUnauthorized();
+});

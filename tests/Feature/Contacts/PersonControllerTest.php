@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Contacts\Domain\Models\Company;
 use App\Modules\Contacts\Domain\Models\Person;
 use App\Modules\Crm\Domain\Enums\LeadStatus;
 use App\Modules\Crm\Domain\Models\Lead;
@@ -76,4 +77,49 @@ it('returns leads on show', function () {
     $resp = $this->actingAs($this->admin)->getJson("/api/people/{$person->id}")->assertOk();
     $resp->assertJsonStructure(['data' => ['id', 'leads' => [['id', 'status']]]]);
     expect(count($resp->json('data.leads')))->toEqual(2);
+});
+
+it('creates a person without company', function () {
+    $resp = $this->actingAs($this->admin)->postJson('/api/people', [
+        'first_name' => 'Marc',
+    ]);
+    $resp->assertCreated()
+        ->assertJsonStructure(['data' => ['id', 'first_name', 'company']])
+        ->assertJsonPath('data.first_name', 'Marc');
+    expect(Person::where('first_name', 'Marc')->exists())->toBeTrue();
+});
+
+it('creates a person with company_id', function () {
+    $company = Company::factory()->create(['name' => 'Acme S.L.']);
+    $resp = $this->actingAs($this->admin)->postJson('/api/people', [
+        'first_name' => 'Laia',
+        'last_name' => 'Garcia',
+        'email' => 'laia@example.com',
+        'company_id' => $company->id,
+    ]);
+    $resp->assertCreated()
+        ->assertJsonPath('data.company.id', $company->id)
+        ->assertJsonPath('data.company.name', 'Acme S.L.');
+});
+
+it('rejects duplicate email on store', function () {
+    Person::factory()->create(['email' => 'duplicate@example.com']);
+    $resp = $this->actingAs($this->admin)->postJson('/api/people', [
+        'first_name' => 'Other',
+        'email' => 'duplicate@example.com',
+    ]);
+    $resp->assertStatus(422)
+        ->assertJsonValidationErrors(['email']);
+});
+
+it('requires first_name on store', function () {
+    $resp = $this->actingAs($this->admin)->postJson('/api/people', [
+        'last_name' => 'Sense Nom',
+    ]);
+    $resp->assertStatus(422)
+        ->assertJsonValidationErrors(['first_name']);
+});
+
+it('requires auth on store', function () {
+    $this->postJson('/api/people', ['first_name' => 'X'])->assertUnauthorized();
 });

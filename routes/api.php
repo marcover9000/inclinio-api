@@ -36,8 +36,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/notes/{note}', [\App\Modules\Crm\Http\Controllers\LeadNoteController::class, 'destroy']);
 
     Route::apiResource('people', \App\Modules\Contacts\Http\Controllers\PersonController::class)
-        ->only(['index', 'show', 'update', 'destroy']);
+        ->only(['index', 'store', 'show', 'update', 'destroy']);
 
     Route::apiResource('companies', \App\Modules\Contacts\Http\Controllers\CompanyController::class)
-        ->only(['index', 'show', 'update', 'destroy']);
+        ->only(['index', 'store', 'show', 'update', 'destroy']);
 });

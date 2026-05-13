@@ -3,7 +3,9 @@
 namespace App\Modules\Contacts\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Contacts\Application\Actions\CreatePerson;
 use App\Modules\Contacts\Domain\Models\Person;
+use App\Modules\Contacts\Http\Requests\CreatePersonRequest;
 use App\Modules\Contacts\Http\Requests\UpdatePersonRequest;
 use App\Modules\Contacts\Http\Resources\PersonResource;
 use Illuminate\Http\JsonResponse;
@@ -31,6 +33,14 @@ class PersonController extends Controller
             $query->where('is_client', $request->boolean('is_client'));
         }
         return PersonResource::collection($query->paginate(min((int) $request->query('per_page', 20), 100)));
+    }
+
+    public function store(CreatePersonRequest $request, CreatePerson $createPerson): JsonResponse
+    {
+        $person = $createPerson($request->validated());
+        return PersonResource::make($person->load('company'))
+            ->response()
+            ->setStatusCode(201);
     }
 
     public function show(Person $person): PersonResource
