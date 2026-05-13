@@ -9,6 +9,7 @@ use App\Modules\Contacts\Http\Resources\PersonResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 
 class PersonController extends Controller
 {
@@ -38,7 +39,9 @@ class PersonController extends Controller
 
     public function update(UpdatePersonRequest $request, Person $person): PersonResource
     {
-        $person->update($request->validated());
+        DB::transaction(function () use ($request, $person) {
+            $person->update($request->validated());
+        });
         return PersonResource::make($person->fresh()->load('company'));
     }
 

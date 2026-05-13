@@ -45,3 +45,27 @@ it('sets company_id to null on active leads when person becomes a particular', f
     $person->update(['company_id' => null]);
     expect($lead->fresh()->company_id)->toBeNull();
 });
+
+it('does not touch leads of other persons at the same company', function () {
+    $oldCompany = Company::factory()->create();
+    $newCompany = Company::factory()->create();
+
+    $personA = Person::factory()->create(['company_id' => $oldCompany->id]);
+    $personB = Person::factory()->create(['company_id' => $oldCompany->id]);
+
+    $leadA = Lead::factory()->create([
+        'person_id' => $personA->id,
+        'company_id' => $oldCompany->id,
+        'status' => LeadStatus::New,
+    ]);
+    $leadB = Lead::factory()->create([
+        'person_id' => $personB->id,
+        'company_id' => $oldCompany->id,
+        'status' => LeadStatus::New,
+    ]);
+
+    $personA->update(['company_id' => $newCompany->id]);
+
+    expect($leadA->fresh()->company_id)->toEqual($newCompany->id);
+    expect($leadB->fresh()->company_id)->toEqual($oldCompany->id);
+});
