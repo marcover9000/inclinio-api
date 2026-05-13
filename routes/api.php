@@ -37,4 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('people', \App\Modules\Contacts\Http\Controllers\PersonController::class)
         ->only(['index', 'show', 'update', 'destroy']);
+
+    Route::apiResource('companies', \App\Modules\Contacts\Http\Controllers\CompanyController::class)
+        ->only(['index', 'show', 'update', 'destroy']);
 });
