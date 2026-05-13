@@ -30,6 +30,16 @@ class Company extends Model
         return $this->hasMany(Person::class);
     }
 
+    /**
+     * Leads attached to this Company. Cross-module reference to the Crm
+     * module — same one-way Contacts ← Crm coupling we use elsewhere
+     * (e.g., CreateLead in Crm depends on Contacts Actions).
+     */
+    public function leads(): HasMany
+    {
+        return $this->hasMany(\App\Modules\Crm\Domain\Models\Lead::class);
+    }
+
     public function scopeClients($query)
     {
         return $query->where('is_client', true);

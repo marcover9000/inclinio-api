@@ -14,7 +14,22 @@ class CreateLeadRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'person.first_name' => ['required', 'string', 'max:100'],
+            // Person picker: either reuse an existing Person via `person_id`
+            // OR create a new one inline via the `person` object. Exactly
+            // one path is expected; if both are sent, `person_id` wins (see
+            // CreateLead action). `exists:people,id` uses the default scope
+            // so soft-deleted Persons are automatically rejected.
+            // `exists` on the DB table directly does NOT honor SoftDeletes
+            // (the validator skips Eloquent global scopes); we add an
+            // explicit `whereNull('deleted_at')` so soft-deleted Persons
+            // are rejected too.
+            'person_id' => [
+                'required_without:person',
+                'integer',
+                \Illuminate\Validation\Rule::exists('people', 'id')->whereNull('deleted_at'),
+            ],
+            'person' => ['required_without:person_id', 'array'],
+            'person.first_name' => ['required_with:person', 'string', 'max:100'],
             'person.last_name' => ['nullable', 'string', 'max:100'],
             'person.email' => ['nullable', 'email', 'max:150'],
             'person.phone' => ['nullable', 'string', 'max:32'],

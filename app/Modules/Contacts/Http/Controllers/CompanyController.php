@@ -26,7 +26,10 @@ class CompanyController extends Controller
 
     public function show(Company $company): CompanyResource
     {
-        return CompanyResource::make($company);
+        return CompanyResource::make($company->load([
+            'people' => fn ($q) => $q->orderBy('first_name'),
+            'leads' => fn ($q) => $q->orderByDesc('created_at'),
+        ]));
     }
 
     public function update(UpdateCompanyRequest $request, Company $company): CompanyResource

@@ -76,3 +76,75 @@ it('returns inflated LeadResource with person and company', function () {
     ])->assertCreated();
     $resp->assertJsonStructure(['data' => ['id', 'status', 'source', 'message', 'tags', 'person' => ['id', 'first_name'], 'company' => ['id', 'name']]]);
 });
+
+it('accepts person_id pointing to an existing Person and reuses it', function () {
+    $company = Company::factory()->create(['name' => 'Acme']);
+    $existing = Person::factory()->create([
+        'first_name' => 'Existing',
+        'company_id' => $company->id,
+    ]);
+
+    $this->actingAs($this->admin)->postJson('/api/leads', [
+        'person_id' => $existing->id,
+        'lead' => ['message' => 'reuse existing person'],
+    ])->assertCreated();
+
+    // No new Person created — total still 1
+    expect(Person::count())->toEqual(1);
+    $lead = Lead::first();
+    expect($lead->person_id)->toEqual($existing->id);
+    // company_id inherits from the resolved Person
+    expect($lead->company_id)->toEqual($company->id);
+});
+
+it('rejects when neither person_id nor person is provided', function () {
+    $this->actingAs($this->admin)->postJson('/api/leads', [
+        'lead' => ['message' => 'no person at all'],
+    ])->assertJsonValidationErrors(['person', 'person_id']);
+});
+
+it('rejects person_id pointing to a non-existent Person', function () {
+    $this->actingAs($this->admin)->postJson('/api/leads', [
+        'person_id' => 999999,
+        'lead' => ['message' => 'ghost person'],
+    ])->assertJsonValidationErrors(['person_id']);
+});
+
+it('rejects person_id pointing to a soft-deleted Person', function () {
+    $deleted = Person::factory()->create();
+    $deleted->delete();
+
+    $this->actingAs($this->admin)->postJson('/api/leads', [
+        'person_id' => $deleted->id,
+        'lead' => ['message' => 'soft deleted person'],
+    ])->assertJsonValidationErrors(['person_id']);
+});
+
+it('silently prefers person_id over person when both are provided', function () {
+    $existing = Person::factory()->create(['first_name' => 'Existing']);
+
+    $this->actingAs($this->admin)->postJson('/api/leads', [
+        'person_id' => $existing->id,
+        'person' => ['first_name' => 'Ignored', 'email' => 'ignored@test.com'],
+        'lead' => ['message' => 'both provided'],
+    ])->assertCreated();
+
+    // Still just one Person — the inline `person` payload was ignored
+    expect(Person::count())->toEqual(1);
+    expect(Lead::first()->person_id)->toEqual($existing->id);
+});
+
+it('ignores company payload when person_id is given', function () {
+    $personCompany = Company::factory()->create(['name' => 'PersonCo']);
+    $existing = Person::factory()->create(['company_id' => $personCompany->id]);
+
+    $this->actingAs($this->admin)->postJson('/api/leads', [
+        'person_id' => $existing->id,
+        'company' => ['name' => 'OverrideCo'],
+        'lead' => ['message' => 'company override attempt'],
+    ])->assertCreated();
+
+    // No new company was created from the payload
+    expect(Company::count())->toEqual(1);
+    expect(Lead::first()->company_id)->toEqual($personCompany->id);
+});

@@ -57,7 +57,8 @@ class LeadController extends Controller
     {
         $data = $request->validated();
         $lead = $createLead([
-            'person' => $data['person'],
+            'person_id' => $data['person_id'] ?? null,
+            'person' => $data['person'] ?? null,
             'company' => $data['company'] ?? null,
             'lead' => $data['lead'],
             'source' => LeadSource::Manual,

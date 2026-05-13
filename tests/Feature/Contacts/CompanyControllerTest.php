@@ -1,6 +1,8 @@
 <?php
 
 use App\Modules\Contacts\Domain\Models\Company;
+use App\Modules\Contacts\Domain\Models\Person;
+use App\Modules\Crm\Domain\Models\Lead;
 use App\Modules\Identity\Domain\Models\User;
 
 beforeEach(function () {
@@ -65,4 +67,22 @@ it('allows PATCH that keeps the same name (no-op)', function () {
     $this->actingAs($this->admin)
         ->patchJson("/api/companies/{$c->id}", ['name' => 'Acme', 'notes' => 'updated'])
         ->assertOk();
+});
+
+it('returns people and leads on show', function () {
+    $company = Company::factory()->create(['name' => 'Acme']);
+    $personA = Person::factory()->create(['company_id' => $company->id, 'first_name' => 'Alice']);
+    $personB = Person::factory()->create(['company_id' => $company->id, 'first_name' => 'Bob']);
+    Lead::factory()->create(['person_id' => $personA->id, 'company_id' => $company->id]);
+    Lead::factory()->create(['person_id' => $personB->id, 'company_id' => $company->id]);
+
+    $resp = $this->actingAs($this->admin)->getJson("/api/companies/{$company->id}")->assertOk();
+    $resp->assertJsonStructure(['data' => [
+        'id',
+        'name',
+        'people' => [['id', 'first_name']],
+        'leads' => [['id', 'status']],
+    ]]);
+    expect(count($resp->json('data.people')))->toEqual(2);
+    expect(count($resp->json('data.leads')))->toEqual(2);
 });

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\Contacts\Domain\Models\Person;
 use App\Modules\Contacts\Http\Requests\UpdatePersonRequest;
 use App\Modules\Contacts\Http\Resources\PersonResource;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
@@ -34,7 +35,10 @@ class PersonController extends Controller
 
     public function show(Person $person): PersonResource
     {
-        return PersonResource::make($person->load('company'));
+        return PersonResource::make($person->load([
+            'company',
+            'leads' => fn ($q) => $q->orderByDesc('created_at'),
+        ]));
     }
 
     public function update(UpdatePersonRequest $request, Person $person): PersonResource
@@ -45,8 +49,13 @@ class PersonController extends Controller
         return PersonResource::make($person->fresh()->load('company'));
     }
 
-    public function destroy(Person $person): Response
+    public function destroy(Person $person): Response|JsonResponse
     {
+        if ($person->leads()->active()->exists()) {
+            return response()->json([
+                'message' => "Aquesta persona té leads actius. Tanca'ls com a Guanyat o Perdut abans d'eliminar-la.",
+            ], 422);
+        }
         $person->delete();
         return response()->noContent();
     }

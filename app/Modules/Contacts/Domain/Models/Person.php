@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Person extends Model
@@ -31,6 +32,16 @@ class Person extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Leads attached to this Person. Cross-module reference to the Crm
+     * module — same one-way Contacts ← Crm coupling we use elsewhere
+     * (e.g., CreateLead in Crm depends on Contacts Actions).
+     */
+    public function leads(): HasMany
+    {
+        return $this->hasMany(\App\Modules\Crm\Domain\Models\Lead::class);
     }
 
     public function scopeClients($query)
