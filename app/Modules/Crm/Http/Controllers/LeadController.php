@@ -36,21 +36,15 @@ class LeadController extends Controller
         }
 
         if ($search = $request->query('search')) {
-            $query->whereHas('person', function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            })->orWhereHas('company', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+            $query->whereHas('person', fn ($q) => $q->search($search))
+                  ->orWhereHas('company', fn ($q) => $q->search($search));
         }
 
         if ($request->boolean('with_trashed')) {
             $query->withTrashed();
         }
 
-        $perPage = min((int) $request->query('per_page', 20), 100);
-        return LeadResource::collection($query->paginate($perPage));
+        return LeadResource::collection($query->paginateFromRequest());
     }
 
     public function store(CreateLeadRequest $request, CreateLead $createLead): JsonResponse

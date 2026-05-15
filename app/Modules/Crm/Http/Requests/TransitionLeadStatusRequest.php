@@ -3,16 +3,11 @@
 namespace App\Modules\Crm\Http\Requests;
 
 use App\Modules\Crm\Domain\Enums\LeadStatus;
-use Illuminate\Foundation\Http\FormRequest;
+use App\Modules\Shared\Http\Requests\AuthenticatedFormRequest;
 use Illuminate\Validation\Rules\Enum;
 
-class TransitionLeadStatusRequest extends FormRequest
+class TransitionLeadStatusRequest extends AuthenticatedFormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() !== null;
-    }
-
     public function rules(): array
     {
         return [

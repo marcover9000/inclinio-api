@@ -2,7 +2,9 @@
 
 namespace App\Modules\Contacts\Domain\Models;
 
+use App\Modules\Contacts\Domain\Concerns\IsClientPromotable;
 use Database\Factories\PersonFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,18 +15,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Person extends Model
 {
     use HasFactory;
+    use IsClientPromotable;
     use SoftDeletes;
 
     protected $table = 'people';
 
     protected $fillable = [
         'company_id', 'first_name', 'last_name', 'email', 'phone', 'position',
-        'is_client', 'became_client_at',
-    ];
-
-    protected $casts = [
-        'is_client' => 'boolean',
-        'became_client_at' => 'datetime',
     ];
 
     protected $appends = ['full_name'];
@@ -44,19 +41,13 @@ class Person extends Model
         return $this->hasMany(\App\Modules\Crm\Domain\Models\Lead::class);
     }
 
-    public function scopeClients($query)
+    public function scopeSearch(Builder $query, string $term): Builder
     {
-        return $query->where('is_client', true);
-    }
-
-    public function promoteToClient(): void
-    {
-        if (!$this->is_client) {
-            $this->update([
-                'is_client' => true,
-                'became_client_at' => now(),
-            ]);
-        }
+        return $query->where(function (Builder $q) use ($term) {
+            $q->where('first_name', 'like', "%{$term}%")
+              ->orWhere('last_name', 'like', "%{$term}%")
+              ->orWhere('email', 'like', "%{$term}%");
+        });
     }
 
     protected function fullName(): Attribute

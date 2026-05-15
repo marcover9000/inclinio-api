@@ -2,7 +2,9 @@
 
 namespace App\Modules\Contacts\Domain\Models;
 
+use App\Modules\Contacts\Domain\Concerns\IsClientPromotable;
 use Database\Factories\CompanyFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,18 +13,13 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Company extends Model
 {
     use HasFactory;
+    use IsClientPromotable;
     use SoftDeletes;
 
     protected $table = 'companies';
 
     protected $fillable = [
         'name', 'vat', 'website', 'address', 'notes',
-        'is_client', 'became_client_at',
-    ];
-
-    protected $casts = [
-        'is_client' => 'boolean',
-        'became_client_at' => 'datetime',
     ];
 
     public function people(): HasMany
@@ -40,19 +37,9 @@ class Company extends Model
         return $this->hasMany(\App\Modules\Crm\Domain\Models\Lead::class);
     }
 
-    public function scopeClients($query)
+    public function scopeSearch(Builder $query, string $term): Builder
     {
-        return $query->where('is_client', true);
-    }
-
-    public function promoteToClient(): void
-    {
-        if (!$this->is_client) {
-            $this->update([
-                'is_client' => true,
-                'became_client_at' => now(),
-            ]);
-        }
+        return $query->where('name', 'like', "%{$term}%");
     }
 
     protected static function newFactory(): CompanyFactory

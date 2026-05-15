@@ -20,19 +20,13 @@ class PersonController extends Controller
     {
         $query = Person::query()->with('company');
         if ($search = $request->query('search')) {
-            $query->where(function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            });
+            $query->search($search);
         }
         if ($request->query('company_id')) {
             $query->where('company_id', $request->query('company_id'));
         }
-        if ($request->has('is_client')) {
-            $query->where('is_client', $request->boolean('is_client'));
-        }
-        return PersonResource::collection($query->paginate(min((int) $request->query('per_page', 20), 100)));
+        $query->filterIsClient($request->has('is_client') ? $request->boolean('is_client') : null);
+        return PersonResource::collection($query->paginateFromRequest());
     }
 
     public function store(CreatePersonRequest $request, CreatePerson $createPerson): JsonResponse

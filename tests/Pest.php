@@ -40,6 +40,21 @@ pest()->extend(Tests\TestCase::class)
 |
 */
 
+use App\Modules\Identity\Domain\Enums\UserRole;
+use App\Modules\Identity\Domain\Models\User;
+use Spatie\Permission\Models\Role;
+
+/**
+ * Crea un usuari admin i l'autentica per al test actual.
+ */
+function actingAsAdmin(): User
+{
+    $user = User::factory()->admin()->create();
+    test()->actingAs($user);
+
+    return $user;
+}
+
 /*
 |--------------------------------------------------------------------------
 | Hooks globals
@@ -49,9 +64,6 @@ pest()->extend(Tests\TestCase::class)
 | Necessari perquè User::factory()->admin()/staff() els pugui assignar.
 |
 */
-
-use App\Modules\Identity\Domain\Enums\UserRole;
-use Spatie\Permission\Models\Role;
 
 uses()->beforeEach(function () {
     foreach (UserRole::cases() as $role) {
