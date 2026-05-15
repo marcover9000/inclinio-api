@@ -49,8 +49,7 @@ class LeadController extends Controller
             $query->withTrashed();
         }
 
-        $perPage = min((int) $request->query('per_page', 20), 100);
-        return LeadResource::collection($query->paginate($perPage));
+        return LeadResource::collection($query->paginateFromRequest());
     }
 
     public function store(CreateLeadRequest $request, CreateLead $createLead): JsonResponse

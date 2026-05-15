@@ -21,7 +21,7 @@ class CompanyController extends Controller
             $query->where('name', 'like', "%{$search}%");
         }
         $query->filterIsClient($request->has('is_client') ? $request->boolean('is_client') : null);
-        return CompanyResource::collection($query->orderBy('name')->paginate(min((int) $request->query('per_page', 20), 100)));
+        return CompanyResource::collection($query->orderBy('name')->paginateFromRequest());
     }
 
     public function store(CreateCompanyRequest $request): JsonResponse

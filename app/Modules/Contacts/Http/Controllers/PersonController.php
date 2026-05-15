@@ -30,7 +30,7 @@ class PersonController extends Controller
             $query->where('company_id', $request->query('company_id'));
         }
         $query->filterIsClient($request->has('is_client') ? $request->boolean('is_client') : null);
-        return PersonResource::collection($query->paginate(min((int) $request->query('per_page', 20), 100)));
+        return PersonResource::collection($query->paginateFromRequest());
     }
 
     public function store(CreatePersonRequest $request, CreatePerson $createPerson): JsonResponse
