@@ -15,8 +15,29 @@ Route::get('/health', function () {
 });
 
 /*
+ * Endpoint públic de captació de leads via formulari web.
+ * Rate-limited: 5 sol·licituds per minut per IP. Honeypot al camp `_hp`.
+ */
+Route::post('/public/leads', \App\Modules\Crm\Http\Controllers\PublicLeadController::class)
+    ->middleware('throttle:5,1');
+
+/*
  * Rutes autenticades (Sanctum SPA cookies).
  */
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', MeController::class);
+    Route::get('/leads', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'index']);
+    Route::post('/leads', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'store']);
+    Route::get('/leads/{lead}', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'show']);
+    Route::patch('/leads/{lead}', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'update']);
+    Route::delete('/leads/{lead}', [\App\Modules\Crm\Http\Controllers\LeadController::class, 'destroy']);
+    Route::patch('/leads/{lead}/status', \App\Modules\Crm\Http\Controllers\LeadStatusController::class);
+    Route::post('/leads/{lead}/notes', [\App\Modules\Crm\Http\Controllers\LeadNoteController::class, 'store']);
+    Route::delete('/notes/{note}', [\App\Modules\Crm\Http\Controllers\LeadNoteController::class, 'destroy']);
+
+    Route::apiResource('people', \App\Modules\Contacts\Http\Controllers\PersonController::class)
+        ->only(['index', 'store', 'show', 'update', 'destroy']);
+
+    Route::apiResource('companies', \App\Modules\Contacts\Http\Controllers\CompanyController::class)
+        ->only(['index', 'store', 'show', 'update', 'destroy']);
 });
