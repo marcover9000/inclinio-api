@@ -4,6 +4,7 @@ namespace App\Modules\Contacts\Domain\Models;
 
 use App\Modules\Contacts\Domain\Concerns\IsClientPromotable;
 use Database\Factories\CompanyFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,6 +35,11 @@ class Company extends Model
     public function leads(): HasMany
     {
         return $this->hasMany(\App\Modules\Crm\Domain\Models\Lead::class);
+    }
+
+    public function scopeSearch(Builder $query, string $term): Builder
+    {
+        return $query->where('name', 'like', "%{$term}%");
     }
 
     protected static function newFactory(): CompanyFactory

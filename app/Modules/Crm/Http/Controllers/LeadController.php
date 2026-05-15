@@ -36,13 +36,8 @@ class LeadController extends Controller
         }
 
         if ($search = $request->query('search')) {
-            $query->whereHas('person', function ($q) use ($search) {
-                $q->where('first_name', 'like', "%{$search}%")
-                  ->orWhere('last_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
-            })->orWhereHas('company', function ($q) use ($search) {
-                $q->where('name', 'like', "%{$search}%");
-            });
+            $query->whereHas('person', fn ($q) => $q->search($search))
+                  ->orWhereHas('company', fn ($q) => $q->search($search));
         }
 
         if ($request->boolean('with_trashed')) {

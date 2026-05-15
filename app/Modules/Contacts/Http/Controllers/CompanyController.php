@@ -18,7 +18,7 @@ class CompanyController extends Controller
     {
         $query = Company::query();
         if ($search = $request->query('search')) {
-            $query->where('name', 'like', "%{$search}%");
+            $query->search($search);
         }
         $query->filterIsClient($request->has('is_client') ? $request->boolean('is_client') : null);
         return CompanyResource::collection($query->orderBy('name')->paginateFromRequest());
