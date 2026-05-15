@@ -2,16 +2,11 @@
 
 namespace App\Modules\Contacts\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Modules\Shared\Http\Requests\AuthenticatedFormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateCompanyRequest extends FormRequest
+class UpdateCompanyRequest extends AuthenticatedFormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() !== null;
-    }
-
     public function rules(): array
     {
         return [

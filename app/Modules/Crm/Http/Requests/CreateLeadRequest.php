@@ -2,15 +2,10 @@
 
 namespace App\Modules\Crm\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
+use App\Modules\Shared\Http\Requests\AuthenticatedFormRequest;
 
-class CreateLeadRequest extends FormRequest
+class CreateLeadRequest extends AuthenticatedFormRequest
 {
-    public function authorize(): bool
-    {
-        return $this->user() !== null;
-    }
-
     public function rules(): array
     {
         return [
