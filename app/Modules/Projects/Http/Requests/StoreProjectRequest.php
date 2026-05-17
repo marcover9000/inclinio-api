@@ -2,12 +2,15 @@
 
 namespace App\Modules\Projects\Http\Requests;
 
+use App\Modules\Projects\Http\Requests\Concerns\ValidatesPackBillingMode;
 use App\Modules\Shared\Http\Requests\AuthenticatedFormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\Rule;
 
 class StoreProjectRequest extends AuthenticatedFormRequest
 {
+    use ValidatesPackBillingMode;
+
     public function rules(): array
     {
         return [
@@ -20,8 +23,10 @@ class StoreProjectRequest extends AuthenticatedFormRequest
             'started_at' => ['nullable', 'date'],
             'due_at' => ['nullable', 'date'],
             'pack' => ['nullable', 'array'],
-            'pack.hours' => ['required_with:pack', 'integer', 'min:1'],
-            'pack.price_cents' => ['required_with:pack', 'integer', 'min:0'],
+            'pack.billing_mode' => ['sometimes', Rule::in(['fixed', 'hourly'])],
+            'pack.hours' => ['nullable', 'integer', 'min:1'],
+            'pack.price_cents' => ['nullable', 'integer', 'min:1'],
+            'pack.hourly_rate_cents' => ['nullable', 'integer', 'min:1'],
             'pack.currency' => ['required_with:pack', 'string', 'size:3'],
             'pack.reason' => ['required_with:pack', 'string', 'max:200'],
             'pack.dated_on' => ['nullable', 'date'],
@@ -39,6 +44,10 @@ class StoreProjectRequest extends AuthenticatedFormRequest
             }
             if ($internal && $hasClient) {
                 $v->errors()->add('is_internal', 'Un projecte intern no pot tenir client.');
+            }
+
+            if ($this->filled('pack')) {
+                $this->validatePackBillingMode($v, 'pack.');
             }
         });
     }
