@@ -40,6 +40,13 @@ final class Money
         return new self($this->amountCents + $other->amountCents, $this->currency);
     }
 
+    public function subtract(Money $other): self
+    {
+        $this->assertSameCurrency($other);
+
+        return new self($this->amountCents - $other->amountCents, $this->currency);
+    }
+
     /** Escala per un factor enter. Factors negatius són vàlids (abonaments). */
     public function multiply(int $factor): self
     {

@@ -47,3 +47,9 @@ it('formats with comma decimals and currency suffix', function () {
 it('formats negative amounts correctly', function () {
     expect(Money::fromCents(-150, 'EUR')->format())->toBe('-1,50 EUR');
 });
+
+it('subtracts two money of the same currency', function () {
+    $r = \App\Modules\Shared\Domain\ValueObjects\Money::fromCents(1000, 'EUR')
+        ->subtract(\App\Modules\Shared\Domain\ValueObjects\Money::fromCents(300, 'EUR'));
+    expect($r->amountCents)->toBe(700)->and($r->currency)->toBe('EUR');
+});
