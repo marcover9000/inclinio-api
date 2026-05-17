@@ -40,4 +40,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('companies', \App\Modules\Contacts\Http\Controllers\CompanyController::class)
         ->only(['index', 'store', 'show', 'update', 'destroy']);
+
+    Route::apiResource('projects', \App\Modules\Projects\Http\Controllers\ProjectController::class)
+        ->only(['index', 'store', 'show', 'update', 'destroy']);
 });
