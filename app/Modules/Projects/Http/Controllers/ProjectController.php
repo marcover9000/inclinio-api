@@ -5,6 +5,7 @@ namespace App\Modules\Projects\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Projects\Application\Actions\CreateProject;
 use App\Modules\Projects\Domain\Models\Project;
+use App\Modules\Projects\Http\Controllers\Concerns\BuildsPackPayload;
 use App\Modules\Projects\Http\Requests\StoreProjectRequest;
 use App\Modules\Projects\Http\Requests\UpdateProjectRequest;
 use App\Modules\Projects\Http\Resources\ProjectResource;
@@ -16,6 +17,8 @@ use Illuminate\Http\Response;
 
 class ProjectController extends Controller
 {
+    use BuildsPackPayload;
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $query = Project::query()
@@ -65,12 +68,7 @@ class ProjectController extends Controller
         }
 
         if (! empty($data['pack'])) {
-            $attributes['pack'] = [
-                'hours' => (int) $data['pack']['hours'],
-                'price' => Money::fromCents((int) $data['pack']['price_cents'], $data['pack']['currency']),
-                'reason' => $data['pack']['reason'],
-                'dated_on' => $data['pack']['dated_on'] ?? null,
-            ];
+            $attributes['pack'] = $this->packFromInput($data['pack']);
         }
 
         $project = $createProject($attributes);
