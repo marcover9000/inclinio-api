@@ -43,4 +43,5 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource('projects', \App\Modules\Projects\Http\Controllers\ProjectController::class)
         ->only(['index', 'store', 'show', 'update', 'destroy']);
+    Route::patch('/projects/{project}/status', \App\Modules\Projects\Http\Controllers\ProjectStatusController::class);
 });
