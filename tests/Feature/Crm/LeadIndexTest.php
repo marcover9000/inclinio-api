@@ -37,7 +37,8 @@ it('filters by tag', function () {
 it('searches by person first_name', function () {
     $a = Lead::factory()->create();
     $a->person->update(['first_name' => 'Marc']);
-    Lead::factory()->create();
+    $b = Lead::factory()->create();
+    $b->person->update(['first_name' => 'Anna', 'last_name' => 'Smith', 'email' => 'anna.smith@example.com']);
     $resp = $this->actingAs($this->admin)->getJson('/api/leads?search=Marc');
     expect(count($resp->json('data')))->toEqual(1);
 });
