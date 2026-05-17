@@ -28,7 +28,7 @@ class ConvertLeadToProject
      *   mode:'new'|'extend',
      *   name?:string,
      *   project_id?:int,
-     *   pack:array{hours:int,price:\App\Modules\Shared\Domain\ValueObjects\Money,reason:string,dated_on?:?string}
+     *   pack:array{billing_mode?:\App\Modules\Projects\Domain\Enums\BillingMode|string,hours?:?int,price?:\App\Modules\Shared\Domain\ValueObjects\Money,hourly_rate?:\App\Modules\Shared\Domain\ValueObjects\Money,reason:string,dated_on?:?string}
      * } $data
      */
     public function __invoke(Lead $lead, array $data): Project
@@ -39,10 +39,7 @@ class ConvertLeadToProject
 
         return DB::transaction(function () use ($lead, $data) {
             $pack = [
-                'hours' => $data['pack']['hours'],
-                'price' => $data['pack']['price'],
-                'reason' => $data['pack']['reason'],
-                'dated_on' => $data['pack']['dated_on'] ?? now()->toDateString(),
+                ...$data['pack'],
                 'source_lead_id' => $lead->id,
             ];
 

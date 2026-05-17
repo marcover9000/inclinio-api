@@ -9,16 +9,16 @@ use Illuminate\Support\Facades\DB;
 
 class CreateProject
 {
+    public function __construct(private readonly AddHoursPack $addHoursPack)
+    {
+    }
+
     /**
-     * @param  array{
-     *   name:string,
-     *   is_internal?:bool,
-     *   client_company_id?:?int,
-     *   client_person_id?:?int,
-     *   shadow_rate_override?:?Money,
-     *   started_at?:?string,
-     *   due_at?:?string,
-     *   pack?:?array{hours:int,price:Money,reason:string,dated_on?:?string,source_lead_id?:?int}
+     * @param array{
+     *   name:string, is_internal?:bool,
+     *   client_company_id?:?int, client_person_id?:?int,
+     *   shadow_rate_override?:?Money, started_at?:?string, due_at?:?string,
+     *   pack?:array<string,mixed>
      * } $data
      */
     public function __invoke(array $data): Project
@@ -36,13 +36,7 @@ class CreateProject
             ]);
 
             if (! empty($data['pack'])) {
-                $project->hoursPacks()->create([
-                    'hours' => $data['pack']['hours'],
-                    'price' => $data['pack']['price'],
-                    'reason' => $data['pack']['reason'],
-                    'dated_on' => $data['pack']['dated_on'] ?? now()->toDateString(),
-                    'source_lead_id' => $data['pack']['source_lead_id'] ?? null,
-                ]);
+                ($this->addHoursPack)($project, $data['pack']);
             }
 
             return $project->fresh();
