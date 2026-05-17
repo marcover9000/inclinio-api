@@ -81,7 +81,7 @@ class ProjectController extends Controller
     public function show(Project $project): ProjectResource
     {
         return ProjectResource::make($project->load([
-            'clientCompany', 'clientPerson', 'hoursPacks.sourceLead',
+            'clientCompany', 'clientPerson', 'hoursPacks.sourceLead', 'tasks.timeEntries', 'timeEntries',
         ]));
     }
 
