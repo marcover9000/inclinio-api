@@ -5,6 +5,7 @@ namespace App\Modules\Projects\Domain\Models;
 use App\Modules\Contacts\Domain\Models\Company;
 use App\Modules\Contacts\Domain\Models\Person;
 use App\Modules\Projects\Domain\Enums\ProjectStatus;
+use App\Modules\Shared\Domain\Settings;
 use App\Modules\Shared\Domain\ValueObjects\Money;
 use App\Modules\Shared\Infrastructure\Casts\MoneyCast;
 use Database\Factories\ProjectFactory;
@@ -54,6 +55,16 @@ class Project extends Model
         return $this->hasMany(HoursPack::class);
     }
 
+    public function tasks(): HasMany
+    {
+        return $this->hasMany(Task::class);
+    }
+
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
+
     public function scopeOfStatus(Builder $q, array $statuses): Builder
     {
         return $q->whereIn('status', $statuses);
@@ -100,6 +111,45 @@ class Project extends Model
     public function budgetedHours(): int
     {
         return (int) $this->hoursPacks->sum('hours');
+    }
+
+    public function consumedHours(): float
+    {
+        return (int) $this->timeEntries->sum('minutes') / 60;
+    }
+
+    public function overrunPercent(): ?float
+    {
+        $budgeted = $this->budgetedHours();
+        if ($budgeted <= 0) {
+            return null;
+        }
+
+        return round((($this->consumedHours() - $budgeted) / $budgeted) * 100, 2);
+    }
+
+    public function shadowRate(): Money
+    {
+        return $this->shadow_rate_override ?? Settings::shadowRate();
+    }
+
+    public function theoreticalCost(): Money
+    {
+        $rate = $this->shadowRate();
+
+        return Money::fromCents(
+            (int) round($this->consumedHours() * $rate->amountCents),
+            $rate->currency,
+        );
+    }
+
+    public function realMargin(): ?Money
+    {
+        if ($this->is_internal) {
+            return null;
+        }
+
+        return $this->totalPrice()->subtract($this->theoreticalCost());
     }
 
     protected static function newFactory(): ProjectFactory
