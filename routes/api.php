@@ -47,5 +47,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/projects/{project}/packs', [\App\Modules\Projects\Http\Controllers\ProjectHoursPackController::class, 'store']);
     Route::patch('/projects/{project}/packs/{pack}', [\App\Modules\Projects\Http\Controllers\ProjectHoursPackController::class, 'update']);
     Route::delete('/projects/{project}/packs/{pack}', [\App\Modules\Projects\Http\Controllers\ProjectHoursPackController::class, 'destroy']);
+    Route::post('/projects/{project}/tasks', [\App\Modules\Projects\Http\Controllers\ProjectTaskController::class, 'store']);
+    Route::patch('/projects/{project}/tasks/{task}', [\App\Modules\Projects\Http\Controllers\ProjectTaskController::class, 'update']);
+    Route::delete('/projects/{project}/tasks/{task}', [\App\Modules\Projects\Http\Controllers\ProjectTaskController::class, 'destroy']);
     Route::post('/leads/{lead}/project', [\App\Modules\Projects\Http\Controllers\LeadProjectController::class, 'store']);
 });
