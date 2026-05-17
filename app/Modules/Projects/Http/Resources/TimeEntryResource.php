@@ -15,6 +15,8 @@ class TimeEntryResource extends JsonResource
             'worked_on' => $this->worked_on?->toDateString(),
             'minutes' => $this->minutes,
             'description' => $this->description,
+            'project' => $this->whenLoaded('project', fn ($p) => ['id' => $p->id, 'name' => $p->name]),
+            'task' => $this->whenLoaded('task', fn ($t) => ['id' => $t->id, 'title' => $t->title]),
             'created_at' => $this->created_at,
         ];
     }
