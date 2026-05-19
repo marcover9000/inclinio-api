@@ -54,6 +54,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/projects/{project}/time-entries/{timeEntry}', [\App\Modules\Projects\Http\Controllers\ProjectTimeEntryController::class, 'update']);
     Route::delete('/projects/{project}/time-entries/{timeEntry}', [\App\Modules\Projects\Http\Controllers\ProjectTimeEntryController::class, 'destroy']);
     Route::get('/time-entries', [\App\Modules\Projects\Http\Controllers\MyTimeEntriesController::class, 'index']);
+    Route::get('/dashboard/time', [\App\Modules\Projects\Http\Controllers\DashboardTimeController::class, 'index']);
     Route::post('/leads/{lead}/project', [\App\Modules\Projects\Http\Controllers\LeadProjectController::class, 'store']);
 
     Route::get('/settings', [\App\Modules\Shared\Http\Controllers\SettingsController::class, 'show'])->middleware('role:admin');
